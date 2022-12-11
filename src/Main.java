@@ -4,9 +4,9 @@ public class Main {
 
     public static void printMenu(){
         System.out.println("1. Print terminals");
-        System.out.println("2. Print nonterminals");
+        System.out.println("2. Print non terminals");
         System.out.println("3. Print productions");
-        System.out.println("4. Print productions for given terminal");
+        System.out.println("4. Print productions for given non terminal");
         System.out.println("5. Check if grammar is CFG");
     }
 
@@ -26,7 +26,7 @@ public class Main {
                     grammar.printTerminals();
                     break;
                 case 2:
-                    System.out.println("The nonterminals are: ");
+                    System.out.println("The non terminals are: ");
                     grammar.printNonTerminals();
                     break;
                 case 3:
@@ -34,7 +34,7 @@ public class Main {
                     grammar.printProductions();
                     break;
                 case 4:
-                    System.out.println("Terminal = ");
+                    System.out.println("Non terminal = ");
                     scanner.nextLine();
                     String terminal = scanner.nextLine();
                     grammar.printProductionsForGivenNonTerminal(terminal);

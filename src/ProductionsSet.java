@@ -12,17 +12,17 @@ public class ProductionsSet {
 
     @Override
     public String toString () {
-        String set = "";
+        StringBuilder set = new StringBuilder();
         for (Map.Entry<List<String>, List<String>> entry : productions.entrySet()) {
             for (String elem1 : entry.getKey()){
-                set+= elem1+ " ";
+                set.append(elem1).append(" ");
             }
-            set+="-> ";
+            set.append("-> ");
             for (String elem1 : entry.getValue()){
-                set+=elem1+" ";
+                set.append(elem1).append(" ");
             }
-            set += "\n";
+            set.append("\n");
         }
-        return set;
+        return set.toString();
     }
 }

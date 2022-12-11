@@ -1,4 +1,3 @@
-import java.awt.*;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -16,7 +15,7 @@ public class Grammar {
     ProductionsSet productionsSet = new ProductionsSet();
     String starterTerminal;
 
-    void readFromFile (String fileName) {
+    void readFromFile(String fileName) {
         Path filePath = Paths.get(fileName);
         Charset charset = StandardCharsets.UTF_8;
         try {
@@ -57,7 +56,7 @@ public class Grammar {
                             }
                         }
                     }
-                   productionsSet.productions.put(key,value);
+                    productionsSet.productions.put(key, value);
                 }
                 counter++;
             }
@@ -66,46 +65,49 @@ public class Grammar {
         }
     }
 
-    void printNonTerminals () {
+    void printNonTerminals() {
         System.out.println(nonterminals);
     }
 
-    void printTerminals () {
+    void printTerminals() {
         System.out.println(terminals);
     }
 
-    void printProductions () {
+    void printProductions() {
         System.out.println(productionsSet);
     }
 
-    void printProductionsForGivenNonTerminal (String nonterminal) {
-        if(!this.nonterminals.contains(nonterminal)){
-            System.out.println("This terminal does not exist!");
+    void printProductionsForGivenNonTerminal(String nonTerminal) {
+        if (!this.nonterminals.contains(nonTerminal)) {
+            System.out.println("This non terminal does not exist!");
         }
-        if(isCFG()){
-        String set = "";
-        for (Map.Entry<List<String>, List<String>> entry : productionsSet.productions.entrySet()) {
-            if(entry.getKey().get(0).equals(nonterminal)){
-                for (String elem1 : entry.getKey()){
-                    set+= elem1+ " ";
+        if (isCFG()) {
+            String set = "";
+            for (Map.Entry<List<String>, List<String>> entry : productionsSet.productions.entrySet()) {
+                if (entry.getKey().get(0).equals(nonTerminal)) {
+                    for (String elem1 : entry.getKey()) {
+                        set += elem1 + " ";
+                    }
+                    set += "-> ";
+                    for (String elem1 : entry.getValue()) {
+                        set += elem1 + " ";
+                    }
+                    set += "\n";
                 }
-                set+="-> ";
-                for (String elem1 : entry.getValue()){
-                    set+=elem1+" ";
-                }
-                set += "\n";
             }
-        }
-        System.out.println(set);
-        }
-        else {
+            if (set == "") {
+                System.out.println("This non terminal doesn't have any productions!");
+            } else {
+                System.out.println(set);
+            }
+        } else {
             System.out.println("The grammar is not CFG!");
         }
     }
 
-    Boolean isCFG () {
+    Boolean isCFG() {
         for (Map.Entry<List<String>, List<String>> entry : productionsSet.productions.entrySet()) {
-            if(entry.getKey().size() != 1)
+            if (entry.getKey().size() != 1)
                 return false;
         }
         return true;
