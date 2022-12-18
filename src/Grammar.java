@@ -1,4 +1,3 @@
-import java.awt.*;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -71,15 +70,15 @@ public class Grammar {
         }
     }
 
-    void printNonTerminals () {
+    void printNonTerminals() {
         System.out.println(nonterminals);
     }
 
-    void printTerminals () {
+    void printTerminals() {
         System.out.println(terminals);
     }
 
-    void printProductions () {
+    void printProductions() {
         System.out.println(productionsSet);
     }
 
