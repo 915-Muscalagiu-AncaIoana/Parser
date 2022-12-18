@@ -14,7 +14,7 @@ public class Grammar {
 
     Set<String> nonterminals = new HashSet<>();
     ProductionsSet productionsSet = new ProductionsSet();
-    String starterTerminal;
+    String starterNonterminal;
 
     void readFromFile (String fileName) {
         Path filePath = Paths.get(fileName);
@@ -32,7 +32,7 @@ public class Grammar {
                     terminals.addAll(List.of(tokens));
 
                 } else if (counter == 2) {
-                    starterTerminal = line.strip().toLowerCase(Locale.ROOT);
+                    starterNonterminal = line.strip().toUpperCase(Locale.ROOT);
                 } else {
                     String[] tokens = line.split("::=");
                     String lhs = tokens[0];
@@ -57,7 +57,12 @@ public class Grammar {
                             }
                         }
                     }
-                   productionsSet.productions.put(key,value);
+                    if (!productionsSet.productions.containsKey(key)) {
+                        productionsSet.productions.put(key, new ArrayList<>());
+                    }
+                    List<List<String>> list = productionsSet.productions.get(key);
+                    list.add(value);
+
                 }
                 counter++;
             }
@@ -78,37 +83,56 @@ public class Grammar {
         System.out.println(productionsSet);
     }
 
-    void printProductionsForGivenNonTerminal (String nonterminal) {
-        if(!this.nonterminals.contains(nonterminal)){
+    List<Production> printProductionsForGivenNonTerminal (String nonterminal) {
+        List<Production> productions = new ArrayList<>();
+        if (!this.nonterminals.contains(nonterminal)) {
             System.out.println("This terminal does not exist!");
         }
-        if(isCFG()){
-        String set = "";
-        for (Map.Entry<List<String>, List<String>> entry : productionsSet.productions.entrySet()) {
-            if(entry.getKey().get(0).equals(nonterminal)){
-                for (String elem1 : entry.getKey()){
-                    set+= elem1+ " ";
+        if (isCFG()) {
+            String set = "";
+            for (Map.Entry<List<String>, List<List<String>>> entry : productionsSet.productions.entrySet()) {
+                if (entry.getKey().get(0).equals(nonterminal)) {
+
+                    for (String elem1 : entry.getKey()) {
+                        set += elem1 + " ";
+                    }
+                    set += "-> ";
+                    for (List<String> elem1 : entry.getValue()) {
+                        productions.add(new Production(entry.getKey(), elem1));
+                        for (String elem2 : elem1) {
+                            set += elem2 + " ";
+                        }
+                    }
+                    set += "\n";
                 }
-                set+="-> ";
-                for (String elem1 : entry.getValue()){
-                    set+=elem1+" ";
-                }
-                set += "\n";
             }
-        }
-        System.out.println(set);
-        }
-        else {
+            System.out.println(set);
+            return productions;
+        } else {
             System.out.println("The grammar is not CFG!");
+            return null;
         }
     }
 
     Boolean isCFG () {
-        for (Map.Entry<List<String>, List<String>> entry : productionsSet.productions.entrySet()) {
-            if(entry.getKey().size() != 1)
+        for (Map.Entry<List<String>, List<List<String>>> entry : productionsSet.productions.entrySet()) {
+            if (entry.getKey().size() != 1)
                 return false;
         }
         return true;
     }
+
+    Production enhanceGrammar () {
+        String key = "SS";
+        List<String> lhr = new ArrayList<>();
+        lhr.add(key);
+        List<String> rhs = new ArrayList<>();
+        rhs.add(starterNonterminal);
+        List<List<String>> rhsList = new ArrayList<>();
+        rhsList.add(rhs);
+        productionsSet.productions.put(lhr, rhsList);
+        return new Production(lhr, rhs);
+    }
+
 
 }
