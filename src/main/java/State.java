@@ -9,6 +9,10 @@ public class State {
         productionSet = new HashSet<>();
     }
 
+    public State(Set<Production> productions) {
+        productionSet = new HashSet<>(productions);
+    }
+
     public Set<Production> getProductionSet () {
         return productionSet;
     }
