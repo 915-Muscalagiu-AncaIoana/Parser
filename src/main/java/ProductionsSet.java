@@ -25,16 +25,18 @@ public class ProductionsSet {
     public String toString () {
         String set = "";
         for (Map.Entry<List<String>, List<List<String>>> entry : productions.entrySet()) {
-            for (String elem1 : entry.getKey()) {
-                set += elem1 + " ";
-            }
-            set += "-> ";
+
             for (List<String> elem1 : entry.getValue()) {
+                for (String elem3 : entry.getKey()) {
+                    set += elem3 + " ";
+                }
+                set += "-> ";
                 for (String elem2 : elem1) {
                     set += elem2 + " ";
                 }
+                set += "\n";
             }
-            set += "\n";
+
         }
         return set;
     }
@@ -49,9 +51,20 @@ public class ProductionsSet {
                 }
                 index++;
             }
-
-            index++;
         }
         return -1;
+    }
+    Production getProductionFromIndex (Integer productionIndex) {
+        int index = 1;
+        for (Map.Entry<List<String>, List<List<String>>> entry : productions.entrySet()) {
+
+            for (List<String> list : entry.getValue()) {
+                if (index == productionIndex) {
+                    return new Production(entry.getKey(),list);
+                }
+                index++;
+            }
+        }
+        return null;
     }
 }

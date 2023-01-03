@@ -4,18 +4,28 @@ import java.util.List;
 public class ParsingStrategy {
 
     List<List<String>> workStack = new ArrayList<>();
-    List<String> inputStack = new ArrayList<>();
+    List<String> inputStack= new ArrayList<>();
     List<String> outputBand = new ArrayList<>();
-    String sequence;
 
     public ParsingStrategy (String seq, Integer initialStateIndex) {
-        this.sequence = seq;
         List<String> firstConfiguration = new ArrayList<>();
         firstConfiguration.add("$");
         firstConfiguration.add(String.valueOf(initialStateIndex));
         workStack.add(firstConfiguration);
-        inputStack.add(seq+"$");
+        for(int index = 0;index < seq.length();index++){
+            inputStack.add(String.valueOf(seq.charAt(index)));
+        }
+        inputStack.add("$");
         outputBand.add("");
     }
+    public ParsingStrategy (List<String> seq, Integer initialStateIndex) {
+        List<String> firstConfiguration = new ArrayList<>();
+        firstConfiguration.add("$");
+        firstConfiguration.add(String.valueOf(initialStateIndex));
+        workStack.add(firstConfiguration);
+        inputStack = seq;
+        inputStack.add("$");
+    }
+
 
 }

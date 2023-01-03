@@ -1,3 +1,4 @@
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -37,7 +38,10 @@ public class Main {
                     System.out.println("Non terminal = ");
                     scanner.nextLine();
                     String terminal = scanner.nextLine();
-                    grammar.printProductionsForGivenNonTerminal(terminal);
+                    List<Production> productionList = grammar.printProductionsForGivenNonTerminal(terminal);
+                    for(Production production: productionList){
+                        System.out.println(production);
+                    }
                     break;
                 case 5:
                     if(grammar.isCFG()){

@@ -11,6 +11,8 @@ public class LRParser {
 
     ParsingStrategy parsingStrategy;
 
+    ParsingOutput parsingOutput = new ParsingOutput();
+
     public LRParser (Grammar grammar) {
         this.grammar = grammar;
         this.canonicalCollection = new ArrayList<>();
@@ -42,18 +44,21 @@ public class LRParser {
         Boolean isFinished = false;
         while (!isFinished) {
             isFinished = true;
+            List<Production> productionsToAdd = new ArrayList<>();
             for (Production production : newState.productionSet) {
                 if (hasNonterminalAfterDot(production)) {
                     String nonterminal = production.rhs.get(production.pointIndex);
                     List<Production> productionList = grammar.printProductionsForGivenNonTerminal(nonterminal);
                     for (Production production1 : productionList) {
                         if (!newState.productionSet.contains(production1)) {
-                            newState.productionSet.add(production1);
+                            productionsToAdd.add(production1);
                             isFinished = false;
                         }
                     }
                 }
             }
+            newState.productionSet.addAll(productionsToAdd);
+
         }
         return newState;
     }
@@ -63,7 +68,6 @@ public class LRParser {
         initialState.productionSet.add(grammar.enhanceGrammar());
         initialState = closure(initialState.productionSet);
         canonicalCollection.add(initialState);
-        System.out.println(initialState);
         boolean isFinished = false;
         List<String> symbols = new ArrayList<>();
         symbols.addAll(grammar.nonterminals);
@@ -71,17 +75,13 @@ public class LRParser {
         Integer lastIndex = 0;
         while (!isFinished) {
             isFinished = true;
-            for (int i = lastIndex; i < canonicalCollection.size(); i++) {
+            for (int i = 0; i < canonicalCollection.size(); i++) {
                 State state = canonicalCollection.get(i);
                 for (String symbol : symbols) {
                     State newState = goTo(state, symbol);
-                    if (!newState.productionSet.isEmpty()) {
-                        System.out.println(newState);
-                    }
                     if (!newState.productionSet.isEmpty() && !canonicalCollection.contains(newState)) {
                         canonicalCollection.add(newState);
                         isFinished = false;
-                        lastIndex = i;
                         break;
                     }
                     if (!isFinished) {
@@ -113,8 +113,6 @@ public class LRParser {
                         actions.add("acc");
                     } else {
                         actions.add("reduce " + grammar.productionsSet.getProductionIndex(production));
-                        System.out.println("reduce " + grammar.productionsSet.getProductionIndex(production));
-                        System.out.println(production);
                     }
                 } else {
                     actions.add("shift");
@@ -148,38 +146,72 @@ public class LRParser {
         System.out.println(parsingTable.toString());
     }
 
-    public Boolean isSequenceAccepted (String sequence) {
+    private Boolean parsingAlgorithm(){
         Integer stateindex = 0;
-        parsingStrategy = new ParsingStrategy(sequence, 0);
-        Boolean isFinished = false;
-        int parsingIndex = 1;
-        while (!isFinished) {
+        while (true) {
             String action = parsingTable.getCell(stateindex, "action");
             if (action.equals("shift")) {
-                String nextSymbol = parsingStrategy.inputStack.get(0);
+                String nextSymbol = String.valueOf(parsingStrategy.inputStack.get(0));
                 String nextStateIndex = parsingTable.getCell(stateindex, nextSymbol);
+                if(nextStateIndex == null) {
+                    System.out.println("Sequence is not accepted!");
+                    return false;
+                }
                 List<String> newWorkStackConfig = new ArrayList<>();
-                newWorkStackConfig.addAll(parsingStrategy.workStack.get(parsingIndex - 1));
                 newWorkStackConfig.add(nextSymbol);
                 newWorkStackConfig.add(nextStateIndex);
                 parsingStrategy.workStack.add(newWorkStackConfig);
+                parsingStrategy.inputStack.remove(0);
+                stateindex = Integer.valueOf(nextStateIndex);
             } else {
                 if (action.equals("acc")) {
-                    isFinished = true;
-                    System.out.println("Sequence is accepted!");
-                    break;
+
+                    if(parsingStrategy.inputStack.get(0).equals("$")) {
+                        parsingStrategy.outputBand = parsingStrategy.outputBand.stream().filter(s -> s.length()!=0).collect(Collectors.toList());
+                        System.out.println("Sequence is accepted!");
+                        for (String index : parsingStrategy.outputBand) {
+                            System.out.print(index);
+                        }
+                        System.out.println();
+                        return true;
+                    }
+                    else {
+                        System.out.println("Sequence is not accepted!");
+                        return false;
+                    }
                 }
                 else {
+                    String[] tokens = action.split(" ");
+                    int productionIndex = Integer.parseInt(tokens[1]);
+                    Production production = grammar.productionsSet.getProductionFromIndex(productionIndex);
 
+                    for (int j = 0 ; j < production.rhs.size();j++ ) {
+                        parsingStrategy.workStack.remove(parsingStrategy.workStack.size()-1);
+                    }
+                    String stateIndex = parsingStrategy.workStack.get(parsingStrategy.workStack.size()-1).get(1);
+                    String lhs = production.getLhs().get(0);
+                    String nextState = parsingTable.getCell(Integer.parseInt(stateIndex),lhs);
+                    List<String> newConfiguration = new ArrayList<>();
+                    newConfiguration.add(lhs);
+                    newConfiguration.add(nextState);
+                    parsingStrategy.workStack.add(newConfiguration);
+                    parsingStrategy.outputBand.add(0, String.valueOf(productionIndex));
+                    stateindex = Integer.valueOf(nextState);
                 }
             }
 
 
         }
-
-
-        return false;
     }
 
+    public Boolean isSequenceAccepted (String sequence) {
+
+        parsingStrategy = new ParsingStrategy(sequence, 0);
+        return this.parsingAlgorithm();
+    }
+    public Boolean isSequenceAccepted (List<String> sequence) {
+        parsingStrategy = new ParsingStrategy(sequence, 0);
+        return this.parsingAlgorithm();
+    }
 
 }

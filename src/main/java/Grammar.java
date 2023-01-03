@@ -38,30 +38,35 @@ public class Grammar {
                     String rhs = tokens[1];
                     String[] lhsTerminals = lhs.split("[<> ]");
                     List<String> key = new ArrayList<>();
-                    List<String> value = new ArrayList<>();
+
                     for (String terminal : lhsTerminals) {
                         if (!terminal.isEmpty()) {
                             key.add(terminal.toUpperCase(Locale.ROOT));
                         }
                     }
-                    String[] rhsTokens = rhs.split(" ");
-                    for (String token : rhsTokens) {
-                        if (!token.isEmpty()) {
-                            if (token.charAt(0) == '<' && token.charAt(token.length() - 1) == '>') {
-                                token = token.substring(1, token.length() - 1);
-                                value.add(token.toUpperCase(Locale.ROOT));
-                            } else {
-                                token = token.strip();
-                                value.add(token);
+
+                    String[] rhsProductions = rhs.split("\\|");
+                    for(String rhss : rhsProductions) {
+                        if (!productionsSet.productions.containsKey(key)) {
+                            productionsSet.productions.put(key, new ArrayList<>());
+                        }
+                        List<String> value = new ArrayList<>();
+                        String[] rhsTokens = rhss.split(" ");
+                        for (String token : rhsTokens) {
+                            if (!token.isEmpty()) {
+                                if (token.charAt(0) == '<' && token.charAt(token.length() - 1) == '>') {
+                                    token = token.substring(1, token.length() - 1);
+                                    value.add(token.toUpperCase(Locale.ROOT));
+                                } else {
+                                    token = token.strip();
+                                    value.add(token);
+                                }
                             }
                         }
-                    }
-                    if (!productionsSet.productions.containsKey(key)) {
-                        productionsSet.productions.put(key, new ArrayList<>());
-                    }
-                    List<List<String>> list = productionsSet.productions.get(key);
-                    list.add(value);
 
+                        List<List<String>> list = productionsSet.productions.get(key);
+                        list.add(value);
+                    }
                 }
                 counter++;
             }
@@ -105,7 +110,7 @@ public class Grammar {
                     set += "\n";
                 }
             }
-            System.out.println(set);
+
             return productions;
         } else {
             System.out.println("The grammar is not CFG!");
