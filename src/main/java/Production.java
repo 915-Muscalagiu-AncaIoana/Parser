@@ -50,6 +50,10 @@ public class Production {
         }
         return null;
     }
+
+    public boolean isPointAtEnd(){
+        return getNextSymbol()== null;
+    }
     public void movePoint(){
         pointIndex++;
     }

@@ -6,5 +6,6 @@ public class ParserTest {
         grammar.readFromFile("g1.txt");
         LRParser parser = new LRParser(grammar);
         parser.computeCanonicalCollection();
+        parser.createParsingTable();
     }
 }

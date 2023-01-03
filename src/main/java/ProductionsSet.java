@@ -38,4 +38,20 @@ public class ProductionsSet {
         }
         return set;
     }
+
+    Integer getProductionIndex (Production production) {
+        int index = 1;
+        for (Map.Entry<List<String>, List<List<String>>> entry : productions.entrySet()) {
+
+            for (List<String> list : entry.getValue()) {
+                if (production.lhs.equals(entry.getKey()) && production.rhs.equals(list)) {
+                    return index;
+                }
+                index++;
+            }
+
+            index++;
+        }
+        return -1;
+    }
 }
