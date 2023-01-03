@@ -4,7 +4,7 @@ import java.util.List;
 public class ParsingStrategy {
 
     List<List<String>> workStack = new ArrayList<>();
-    List<String> inputStack = new ArrayList<>();
+    String inputStack= "";
     List<String> outputBand = new ArrayList<>();
     String sequence;
 
@@ -14,7 +14,8 @@ public class ParsingStrategy {
         firstConfiguration.add("$");
         firstConfiguration.add(String.valueOf(initialStateIndex));
         workStack.add(firstConfiguration);
-        inputStack.add(seq+"$");
+        inputStack+=seq;
+        inputStack+="$";
         outputBand.add("");
     }
 

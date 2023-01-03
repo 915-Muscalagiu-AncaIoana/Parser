@@ -54,4 +54,19 @@ public class ProductionsSet {
         }
         return -1;
     }
+    Production getProductionFromIndex (Integer productionIndex) {
+        int index = 1;
+        for (Map.Entry<List<String>, List<List<String>>> entry : productions.entrySet()) {
+
+            for (List<String> list : entry.getValue()) {
+                if (index == productionIndex) {
+                    return new Production(entry.getKey(),list);
+                }
+                index++;
+            }
+
+            index++;
+        }
+        return null;
+    }
 }

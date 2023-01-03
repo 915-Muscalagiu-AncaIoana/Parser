@@ -7,5 +7,6 @@ public class ParserTest {
         LRParser parser = new LRParser(grammar);
         parser.computeCanonicalCollection();
         parser.createParsingTable();
+        parser.isSequenceAccepted("abbc");
     }
 }

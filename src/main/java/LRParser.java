@@ -11,6 +11,8 @@ public class LRParser {
 
     ParsingStrategy parsingStrategy;
 
+    ParsingOutput parsingOutput = new ParsingOutput();
+
     public LRParser (Grammar grammar) {
         this.grammar = grammar;
         this.canonicalCollection = new ArrayList<>();
@@ -151,26 +153,60 @@ public class LRParser {
     public Boolean isSequenceAccepted (String sequence) {
         Integer stateindex = 0;
         parsingStrategy = new ParsingStrategy(sequence, 0);
-        Boolean isFinished = false;
-        int parsingIndex = 1;
-        while (!isFinished) {
+
+        while (true) {
+            System.out.println(parsingStrategy.workStack);
+            System.out.println(parsingStrategy.inputStack);
+            System.out.println(parsingStrategy.outputBand);
             String action = parsingTable.getCell(stateindex, "action");
             if (action.equals("shift")) {
-                String nextSymbol = parsingStrategy.inputStack.get(0);
+                String nextSymbol = String.valueOf(parsingStrategy.inputStack.charAt(0));
                 String nextStateIndex = parsingTable.getCell(stateindex, nextSymbol);
+                if(nextStateIndex == null) {
+                    System.out.println("Sequence is not accepted!");
+                    return false;
+                }
                 List<String> newWorkStackConfig = new ArrayList<>();
-                newWorkStackConfig.addAll(parsingStrategy.workStack.get(parsingIndex - 1));
                 newWorkStackConfig.add(nextSymbol);
                 newWorkStackConfig.add(nextStateIndex);
                 parsingStrategy.workStack.add(newWorkStackConfig);
+                parsingStrategy.inputStack = parsingStrategy.inputStack.substring(1);
+                stateindex = Integer.valueOf(nextStateIndex);
             } else {
                 if (action.equals("acc")) {
-                    isFinished = true;
-                    System.out.println("Sequence is accepted!");
-                    break;
+
+                    if(parsingStrategy.inputStack.equals("$")) {
+                        parsingStrategy.outputBand = parsingStrategy.outputBand.stream().filter(s -> s.length()!=0).collect(Collectors.toList());
+                        System.out.println("Sequence is accepted!");
+                        for (String index : parsingStrategy.outputBand) {
+                            System.out.print(index);
+                        }
+                        System.out.println();
+                        parsingOutput.printParsingTreeToScreen(parsingStrategy.outputBand,grammar);
+                        return true;
+                    }
+                    else {
+                        System.out.println("Sequence is not accepted!");
+                        return false;
+                    }
                 }
                 else {
+                    String[] tokens = action.split(" ");
+                    int productionIndex = Integer.parseInt(tokens[1]);
+                    Production production = grammar.productionsSet.getProductionFromIndex(productionIndex);
 
+                    for (int j = 0 ; j < production.rhs.size();j++ ) {
+                        parsingStrategy.workStack.remove(parsingStrategy.workStack.size()-1);
+                    }
+                    String stateIndex = parsingStrategy.workStack.get(parsingStrategy.workStack.size()-1).get(1);
+                    String lhs = production.getLhs().get(0);
+                    String nextState = parsingTable.getCell(Integer.parseInt(stateIndex),lhs);
+                    List<String> newConfiguration = new ArrayList<>();
+                    newConfiguration.add(lhs);
+                    newConfiguration.add(nextState);
+                    parsingStrategy.workStack.add(newConfiguration);
+                    parsingStrategy.outputBand.add(0, String.valueOf(productionIndex));
+                    stateindex = Integer.valueOf(nextState);
                 }
             }
 
@@ -178,7 +214,6 @@ public class LRParser {
         }
 
 
-        return false;
     }
 
 
