@@ -151,26 +151,79 @@ public class LRParser {
     public Boolean isSequenceAccepted (String sequence) {
         Integer stateindex = 0;
         parsingStrategy = new ParsingStrategy(sequence, 0);
-        Boolean isFinished = false;
-        int parsingIndex = 1;
-        while (!isFinished) {
+        List<Tuple<String,Integer>> treeStack = new ArrayList<>();
+        List<ParsingTreeRow> parsingTree = new ArrayList<>();
+        Integer currentIndex = 0;
+        while (true) {
+            System.out.println(parsingStrategy.workStack);
+            System.out.println(parsingStrategy.inputStack);
+            System.out.println(parsingStrategy.outputBand);
             String action = parsingTable.getCell(stateindex, "action");
             if (action.equals("shift")) {
-                String nextSymbol = parsingStrategy.inputStack.get(0);
+                String nextSymbol = String.valueOf(parsingStrategy.inputStack.charAt(0));
                 String nextStateIndex = parsingTable.getCell(stateindex, nextSymbol);
+                if(nextStateIndex == null) {
+                    System.out.println("Sequence is not accepted!");
+                    return false;
+                }
                 List<String> newWorkStackConfig = new ArrayList<>();
-                newWorkStackConfig.addAll(parsingStrategy.workStack.get(parsingIndex - 1));
                 newWorkStackConfig.add(nextSymbol);
                 newWorkStackConfig.add(nextStateIndex);
                 parsingStrategy.workStack.add(newWorkStackConfig);
+                parsingStrategy.inputStack = parsingStrategy.inputStack.substring(1);
+                stateindex = Integer.valueOf(nextStateIndex);
+                treeStack.add(new Tuple(nextSymbol, currentIndex++));
             } else {
                 if (action.equals("acc")) {
-                    isFinished = true;
-                    System.out.println("Sequence is accepted!");
-                    break;
+
+                    if(parsingStrategy.inputStack.equals("$")) {
+                        System.out.println("Sequence is accepted!");
+                        for (String index : parsingStrategy.outputBand) {
+                            System.out.print(index);
+                        }
+                        System.out.println();
+                        Tuple<String,Integer> lastElement = treeStack.get(treeStack.size()-1);
+                        parsingTree.add(new ParsingTreeRow(lastElement.value, lastElement.key, -1, -1));
+                        for(ParsingTreeRow row : parsingTree){
+                            System.out.println(row);
+                        }
+                        return true;
+                    }
+                    else {
+                        System.out.println("Sequence is not accepted!");
+                        return false;
+                    }
                 }
                 else {
-
+                    String[] tokens = action.split(" ");
+                    int productionIndex = Integer.parseInt(tokens[1]);
+                    Integer parentIndex = currentIndex++;
+                    Production production = grammar.productionsSet.getProductionFromIndex(productionIndex);
+                    var lastIndex = -1;
+                    for (int j = 0 ; j < production.rhs.size();j++ ) {
+                        parsingStrategy.workStack.remove(parsingStrategy.workStack.size()-1);
+                        var lastElement = treeStack.get(treeStack.size()-1);
+                        treeStack.remove(treeStack.size()-1);
+                        parsingTree.add(
+                                new ParsingTreeRow(
+                                        lastElement.getValue(),
+                                        lastElement.getKey(),
+                                        parentIndex,
+                                        lastIndex
+                                )
+                        );
+                        lastIndex = lastElement.getValue();
+                    }
+                    String stateIndex = parsingStrategy.workStack.get(parsingStrategy.workStack.size()-1).get(1);
+                    String lhs = production.getLhs().get(0);
+                    String nextState = parsingTable.getCell(Integer.parseInt(stateIndex),lhs);
+                    List<String> newConfiguration = new ArrayList<>();
+                    newConfiguration.add(lhs);
+                    newConfiguration.add(nextState);
+                    parsingStrategy.workStack.add(newConfiguration);
+                    parsingStrategy.outputBand.add(0, String.valueOf(productionIndex));
+                    stateindex = Integer.valueOf(nextState);
+                    treeStack.add(new Tuple(lhs, parentIndex));
                 }
             }
 
@@ -178,7 +231,6 @@ public class LRParser {
         }
 
 
-        return false;
     }
 
 
