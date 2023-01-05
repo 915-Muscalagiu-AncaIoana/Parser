@@ -11,6 +11,8 @@ public class LRParser {
 
     ParsingStrategy parsingStrategy;
 
+    ParsingOutput parsingOutput = new ParsingOutput();
+
     public LRParser (Grammar grammar) {
         this.grammar = grammar;
         this.canonicalCollection = new ArrayList<>();
@@ -151,9 +153,7 @@ public class LRParser {
     public Boolean isSequenceAccepted (String sequence) {
         Integer stateindex = 0;
         parsingStrategy = new ParsingStrategy(sequence, 0);
-        List<Tuple<String,Integer>> treeStack = new ArrayList<>();
-        List<ParsingTreeRow> parsingTree = new ArrayList<>();
-        Integer currentIndex = 0;
+
         while (true) {
             System.out.println(parsingStrategy.workStack);
             System.out.println(parsingStrategy.inputStack);
@@ -172,21 +172,17 @@ public class LRParser {
                 parsingStrategy.workStack.add(newWorkStackConfig);
                 parsingStrategy.inputStack = parsingStrategy.inputStack.substring(1);
                 stateindex = Integer.valueOf(nextStateIndex);
-                treeStack.add(new Tuple(nextSymbol, currentIndex++));
             } else {
                 if (action.equals("acc")) {
 
                     if(parsingStrategy.inputStack.equals("$")) {
+                        parsingStrategy.outputBand = parsingStrategy.outputBand.stream().filter(s -> s.length()!=0).collect(Collectors.toList());
                         System.out.println("Sequence is accepted!");
                         for (String index : parsingStrategy.outputBand) {
                             System.out.print(index);
                         }
                         System.out.println();
-                        Tuple<String,Integer> lastElement = treeStack.get(treeStack.size()-1);
-                        parsingTree.add(new ParsingTreeRow(lastElement.value, lastElement.key, -1, -1));
-                        for(ParsingTreeRow row : parsingTree){
-                            System.out.println(row);
-                        }
+                        parsingOutput.printParsingTreeToScreen(parsingStrategy.outputBand,grammar);
                         return true;
                     }
                     else {
@@ -197,22 +193,10 @@ public class LRParser {
                 else {
                     String[] tokens = action.split(" ");
                     int productionIndex = Integer.parseInt(tokens[1]);
-                    Integer parentIndex = currentIndex++;
                     Production production = grammar.productionsSet.getProductionFromIndex(productionIndex);
-                    var lastIndex = -1;
+
                     for (int j = 0 ; j < production.rhs.size();j++ ) {
                         parsingStrategy.workStack.remove(parsingStrategy.workStack.size()-1);
-                        var lastElement = treeStack.get(treeStack.size()-1);
-                        treeStack.remove(treeStack.size()-1);
-                        parsingTree.add(
-                                new ParsingTreeRow(
-                                        lastElement.getValue(),
-                                        lastElement.getKey(),
-                                        parentIndex,
-                                        lastIndex
-                                )
-                        );
-                        lastIndex = lastElement.getValue();
                     }
                     String stateIndex = parsingStrategy.workStack.get(parsingStrategy.workStack.size()-1).get(1);
                     String lhs = production.getLhs().get(0);
@@ -223,7 +207,6 @@ public class LRParser {
                     parsingStrategy.workStack.add(newConfiguration);
                     parsingStrategy.outputBand.add(0, String.valueOf(productionIndex));
                     stateindex = Integer.valueOf(nextState);
-                    treeStack.add(new Tuple(lhs, parentIndex));
                 }
             }
 
