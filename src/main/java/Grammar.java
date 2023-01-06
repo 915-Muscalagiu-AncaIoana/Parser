@@ -95,7 +95,7 @@ public class Grammar {
         if (isCFG()) {
             String set = "";
             for (Map.Entry<List<String>, List<List<String>>> entry : productionsSet.productions.entrySet()) {
-                if (entry.getKey().get(0).equals(nonterminal)) {
+                if (entry.getKey().get(0).equals(nonterminal.toUpperCase())) {
 
                     for (String elem1 : entry.getKey()) {
                         set += elem1 + " ";
