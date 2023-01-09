@@ -112,7 +112,15 @@ public class LRParser {
                     if (production.lhs.contains("SS")) {
                         actions.add("acc");
                     } else {
-                        actions.add("reduce " + grammar.productionsSet.getProductionIndex(production));
+                        Integer productionIndex = grammar.productionsSet.getProductionIndex(production);
+                        if(productionIndex != -1) {
+                            actions.add("reduce " +productionIndex);
+                        }
+                        else {
+                            System.out.println("Error at row " + index);
+                            return;
+                        }
+
                     }
                 } else {
                     actions.add("shift");
