@@ -162,7 +162,7 @@ public class LRParser {
                 String nextSymbol = String.valueOf(parsingStrategy.inputStack.get(0));
                 String nextStateIndex = parsingTable.getCell(stateindex, nextSymbol);
                 if(nextStateIndex == null) {
-                    System.out.println("Sequence is not accepted!");
+                    System.out.println("Sequence is not accepted! Error at row: "+stateindex+" column: "+nextSymbol);
                     return false;
                 }
                 List<String> newWorkStackConfig = new ArrayList<>();
@@ -184,7 +184,7 @@ public class LRParser {
                         return true;
                     }
                     else {
-                        System.out.println("Sequence is not accepted!");
+                        System.out.println("Sequence is not accepted! Error at row: "+stateindex+" symbol: "+parsingStrategy.inputStack.get(0));
                         return false;
                     }
                 }
