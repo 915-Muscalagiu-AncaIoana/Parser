@@ -1,24 +1,8 @@
-string, bool, program, integer, type, relation, condlist, iostmt, decllist, assignstmt, structstmt, term, logicalop, arraydecl, factor, identifier, expression, ifstmt, stmtlist, declaration, simpledecl, whilestmt, condition, char, simplstmt, stmt
-<=, :=, decl, bool, string, cond, and, repeat, [, ], otherwise, ==, read, or, %, (, ), *, +, -, int, /, print, char, {, ;, <, }, >, >=
+program, stmt, printstmt, whilestmt, condition, relation
+<, cond, repeat, [, ], print, const
 program
-<program> ::= { <stmtlist> }
-<decllist> ::= <declaration> | <declaration> ; <decllist>
-<declaration> ::= <simpledecl> | <arraydecl>
-<simpledecl> ::= decl <type> <identifier>
-<arraydecl> ::= decl <type> <identifier> { <integer> }
-<type> ::= bool | char | int | string
-<stmtlist> ::= <stmt> | <stmt> ; <stmtlist>
-<stmt> ::= <simplstmt> | <structstmt>
-<simplstmt> ::= <assignstmt> | <iostmt>
-<assignstmt> ::= <identifier> := <expression>
-<expression> ::= <expression> + <term> | <expression> - <term>   | <term>
-<term> ::= <term> * <factor> | <term> / <factor> | <term> % <factor> | <factor>
-<factor> ::= ( <expression> ) | <identifier> | <integer>
-<iostmt> ::= read [ <identifier> ] | print [ <expression> ] | print [ <string> ] | print [ <char> ] | print [ <bool> ]
-<structstmt> ::= <ifstmt> | <whilestmt>
-<ifstmt> ::= cond <condlist> { <stmtlist> } | cond <condlist> { <stmtlist> } otherwise { <stmtlist> }
-<whilestmt> ::= repeat [ <condlist> ] { <stmtlist> }
-<condlist> ::= <condition> | <condition> <logicalop> <condlist>
-<condition> ::= <expression> <relation> <expression> | <bool>
-<relation> ::= < | <= | == | <> | >= | >
-<logicalop> ::= and | or
+<program> ::=<printstmt> | <whilestmt>
+<printstmt> ::=print const
+<whilestmt> ::=repeat [ <condition> ] <printstmt>
+<condition> ::=const <relation> const
+<relation> ::=<
